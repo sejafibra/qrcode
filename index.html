@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de QR Code PIX</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/sejafibra/pixpagamentos/refs/heads/main/faviconsf.ico" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-section {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .print-area {
+            width: 16cm;
+            height: 8cm;
+            border: 1px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .logo {
+            max-width: 200px;
+            max-height: 80px;
+            margin-bottom: 15px;
+        }
+        .qrcode {
+            margin: 15px 0;
+        }
+        .timestamp {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 16cm;
+                height: 8cm;
+                border: none;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <img src="https://sejafibra.net/wp-content/uploads/2023/06/logonovofibra.png" alt="Seja Fibra" class="logo">
+        <h1 class="no-print">Gerador de QR Code PIX</h1>
+        
+        <div class="input-section no-print">
+            <label for="pixCode">Digite o código PIX:</label>
+            <input type="text" id="pixCode" placeholder="Insira o código PIX aqui">
+        </div>
+        
+        <button class="no-print" onclick="generateQRCode()">Gerar QR Code</button>
+        
+        <div class="print-area" id="printArea">
+            <img src="sejafibra.png" alt="Logo Seja Fibra" class="logo" id="logo">
+            <div class="qrcode" id="qrcode"></div>
+            <div>Código gerado em</div>
+            <div class="timestamp" id="timestamp"></div>
+        </div>
+        
+        <button class="no-print" onclick="window.print()">Imprimir</button>
+    </div>
+
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        function generateQRCode() {
+            const pixCode = document.getElementById('pixCode').value;
+            const qrcodeDiv = document.getElementById('qrcode');
+            
+            // Limpa o QR Code anterior
+            qrcodeDiv.innerHTML = '';
+            
+            if (pixCode) {
+                // Gera novo QR Code
+                new QRCode(qrcodeDiv, {
+                    text: pixCode,
+                    width: 200,
+                    height: 200
+                });
+                
+                // Atualiza o timestamp
+                const now = new Date();
+                document.getElementById('timestamp').textContent = formatDate(now);
+            } else {
+                alert('Por favor, insira um código PIX');
+            }
+        }
+        
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        }
+        
+        // Gerar QR Code automaticamente se já houver algo no input ao carregar a página
+        window.onload = function() {
+            if (document.getElementById('pixCode').value) {
+                generateQRCode();
+            }
+        };
+    </script>
+</body>
+</html>
