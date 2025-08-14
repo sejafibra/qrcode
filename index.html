@@ -20,12 +20,32 @@
             width: 100%;
             text-align: center;
         }
+        .input-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: center;
+        }
         input {
-            width: 80%;
+            width: 70%;
             padding: 8px;
             font-size: 14px;
             box-sizing: border-box;
             margin-bottom: 15px;
+        }
+        .paste-btn {
+            padding: 8px 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-left: 5px;
+            margin-bottom: 15px;
+        }
+        .paste-btn:hover {
+            background-color: #0b7dda;
         }
         .button-group {
             display: flex;
@@ -115,7 +135,10 @@
     
     <div class="input-section">
         <label for="pixCode">Digite o código PIX:</label><br>
-        <input type="text" id="pixCode" placeholder="Insira o código PIX aqui">
+        <div class="input-container">
+            <input type="text" id="pixCode" placeholder="Insira o código PIX aqui">
+            <button class="paste-btn" onclick="pastePixCode()">Colar</button>
+        </div>
     </div>
     
     <div class="button-group">
@@ -143,6 +166,16 @@
 
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
+        async function pastePixCode() {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                document.getElementById('pixCode').value = clipboardText;
+            } catch (err) {
+                alert('Não foi possível acessar a área de transferência. Por favor, cole manualmente (Ctrl+V).');
+                document.getElementById('pixCode').focus();
+            }
+        }
+        
         function generateQRCode() {
             const pixCode = document.getElementById('pixCode').value;
             
