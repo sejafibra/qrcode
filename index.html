@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de QR Code PIX</title>
-  <link rel="icon" href="https://raw.githubusercontent.com/sejafibra/pixpagamentos/refs/heads/main/faviconsf.ico" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-        }
-        .container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,37 +17,19 @@
         .input-section {
             margin-bottom: 20px;
             width: 100%;
+            text-align: center;
         }
         input {
-            width: 100%;
+            width: 80%;
             padding: 10px;
             font-size: 16px;
             box-sizing: border-box;
-        }
-        .print-area {
-            width: 16cm;
-            height: 8cm;
-            border: 1px dashed #ccc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .logo {
-            max-width: 200px;
-            max-height: 80px;
             margin-bottom: 15px;
         }
-        .qrcode {
-            margin: 15px 0;
-        }
-        .timestamp {
-            font-size: 14px;
-            margin-top: 10px;
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         button {
             padding: 10px 20px;
@@ -59,10 +38,42 @@
             border: none;
             cursor: pointer;
             font-size: 16px;
-            margin: 5px;
+            border-radius: 4px;
         }
         button:hover {
             background-color: #45a049;
+        }
+        .print-area {
+            width: 16cm;
+            height: 8cm;
+            border: 1px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .logo {
+            max-width: 200px;
+            max-height: 80px;
+        }
+        .qrcode {
+            margin: 15px 0;
+        }
+        .timestamp-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .timestamp-label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .timestamp {
+            font-size: 14px;
+            font-weight: bold;
         }
         @media print {
             body * {
@@ -78,33 +89,38 @@
                 width: 16cm;
                 height: 8cm;
                 border: none;
+                page-break-after: always;
             }
             .no-print {
                 display: none;
+            }
+            @page {
+                size: auto;
+                margin: 0mm;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-      <img src="https://sejafibra.net/wp-content/uploads/2023/06/logonovofibra.png" alt="Seja Fibra" class="logo">
-        <h1 class="no-print">Gerador de QR Code PIX</h1>
-        
-        <div class="input-section no-print">
-            <label for="pixCode">Digite o código PIX:</label>
-            <input type="text" id="pixCode" placeholder="Insira o código PIX aqui">
-        </div>
-        
-        <button class="no-print" onclick="generateQRCode()">Gerar QR Code</button>
-        
-        <div class="print-area" id="printArea">
-            <img src="sejafibra.png" alt="Logo Seja Fibra" class="logo" id="logo">
-            <div class="qrcode" id="qrcode"></div>
-            <div>Código gerado em</div>
+    <h1 class="no-print">Gerador de QR Code PIX</h1>
+    
+    <div class="input-section no-print">
+        <label for="pixCode">Digite o código PIX:</label><br>
+        <input type="text" id="pixCode" placeholder="Insira o código PIX aqui">
+    </div>
+    
+    <div class="button-group no-print">
+        <button onclick="generateQRCode()">Gerar QR Code</button>
+        <button onclick="window.print()">Imprimir</button>
+    </div>
+    
+    <div class="print-area" id="printArea">
+        <img src="sejafibra.png" alt="Logo Seja Fibra" class="logo" id="logo">
+        <div class="qrcode" id="qrcode"></div>
+        <div class="timestamp-container">
+            <div class="timestamp-label">Código gerado em</div>
             <div class="timestamp" id="timestamp"></div>
         </div>
-        
-        <button class="no-print" onclick="window.print()">Imprimir</button>
     </div>
 
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
