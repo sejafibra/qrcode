@@ -22,68 +22,88 @@
         }
         input {
             width: 80%;
-            padding: 10px;
-            font-size: 16px;
+            padding: 8px;
+            font-size: 14px;
             box-sizing: border-box;
             margin-bottom: 15px;
         }
         .button-group {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             margin-bottom: 20px;
         }
         button {
-            padding: 10px 20px;
+            padding: 8px 15px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             border-radius: 4px;
         }
         button:hover {
             background-color: #45a049;
         }
-        .print-container {
-            display: none;
+        .preview {
+            width: 80mm;
+            min-height: 100mm;
+            border: 1px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
         }
+        .preview-logo {
+            max-width: 60mm;
+            max-height: 30mm;
+            margin-bottom: 5px;
+        }
+        .preview-qrcode {
+            margin: 5px 0;
+        }
+        .preview-timestamp {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
         @media print {
             body * {
-                display: none;
+                visibility: hidden;
             }
-            .print-container, .print-container * {
-                display: block;
+            .printable, .printable * {
+                visibility: visible;
             }
-            .print-container {
-                width: 16cm;
-                height: 8cm;
+            .printable {
+                width: 80mm;
+                min-height: 100mm;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: space-between;
-                padding: 15px;
-                box-sizing: border-box;
+                justify-content: center;
+                padding: 5px;
                 position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                page-break-after: always;
+                left: 0;
+                top: 0;
             }
             .print-logo {
-                max-width: 200px;
-                max-height: 80px;
-                margin-bottom: 10px;
+                max-width: 60mm;
+                max-height: 30mm;
+                margin-bottom: 5px;
             }
             .print-qrcode {
-                margin: 10px 0;
+                margin: 5px 0;
             }
             .print-timestamp {
                 text-align: center;
-                margin-top: 10px;
-                font-size: 14px;
+                font-size: 12px;
+                margin-top: 5px;
             }
             @page {
-                size: 16cm 8cm;
+                size: 80mm auto;
                 margin: 0;
                 padding: 0;
             }
@@ -91,30 +111,28 @@
     </style>
 </head>
 <body>
-    <h1 class="no-print">Gerador de QR Code PIX</h1>
+    <h1>Gerador de QR Code PIX</h1>
     
-    <div class="input-section no-print">
+    <div class="input-section">
         <label for="pixCode">Digite o código PIX:</label><br>
         <input type="text" id="pixCode" placeholder="Insira o código PIX aqui">
     </div>
     
-    <div class="button-group no-print">
+    <div class="button-group">
         <button onclick="generateQRCode()">Gerar QR Code</button>
         <button onclick="window.print()">Imprimir</button>
     </div>
     
-    <!-- Área de visualização (não será impressa) -->
-    <div class="no-print" style="width: 16cm; height: 8cm; border: 1px dashed #ccc; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px; box-sizing: border-box; margin-bottom: 20px;">
-        <img src="sejafibra.png" alt="Logo Seja Fibra" style="max-width: 200px; max-height: 80px;" id="preview-logo">
-        <div id="preview-qrcode"></div>
-        <div style="text-align: center; margin-top: 10px;">
-            <div style="font-size: 14px;">Código gerado em</div>
-            <div style="font-size: 14px; font-weight: bold;" id="preview-timestamp"></div>
+    <div class="preview">
+        <img src="sejafibra.png" alt="Logo Seja Fibra" class="preview-logo" id="preview-logo">
+        <div class="preview-qrcode" id="preview-qrcode"></div>
+        <div class="preview-timestamp">
+            <div>Código gerado em</div>
+            <div id="preview-timestamp"></div>
         </div>
     </div>
     
-    <!-- Área que será impressa (invisível na tela) -->
-    <div class="print-container">
+    <div class="printable" style="display: none;">
         <img src="sejafibra.png" alt="Logo Seja Fibra" class="print-logo" id="print-logo">
         <div class="print-qrcode" id="print-qrcode"></div>
         <div class="print-timestamp">
@@ -129,13 +147,14 @@
             const pixCode = document.getElementById('pixCode').value;
             
             if (pixCode) {
-                // Atualiza a visualização
+                // Atualiza visualização
                 updateQRCode('preview-qrcode', pixCode);
                 updateTimestamp('preview-timestamp');
                 
-                // Prepara a versão para impressão
+                // Prepara para impressão
                 updateQRCode('print-qrcode', pixCode);
                 updateTimestamp('print-timestamp');
+                document.querySelector('.printable').style.display = 'flex';
             } else {
                 alert('Por favor, insira um código PIX');
             }
@@ -144,10 +163,11 @@
         function updateQRCode(elementId, pixCode) {
             const qrcodeDiv = document.getElementById(elementId);
             qrcodeDiv.innerHTML = '';
+            // Tamanho reduzido para impressora térmica
             new QRCode(qrcodeDiv, {
                 text: pixCode,
-                width: 200,
-                height: 200
+                width: 150,
+                height: 150
             });
         }
         
@@ -162,9 +182,8 @@
             const year = date.getFullYear();
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
             
-            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
     </script>
 </body>
