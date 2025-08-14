@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://raw.githubusercontent.com/sejafibra/qrcode/refs/heads/main/faviconsf.ico" type="image/x-icon">
     <title>Gerador de QR Code PIX</title>
     <style>
         body {
@@ -43,60 +44,48 @@
         button:hover {
             background-color: #45a049;
         }
-        .print-area {
-            width: 16cm;
-            height: 8cm;
-            border: 1px dashed #ccc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .logo {
-            max-width: 200px;
-            max-height: 80px;
-        }
-        .qrcode {
-            margin: 15px 0;
-        }
-        .timestamp-container {
-            text-align: center;
-            margin-top: 10px;
-        }
-        .timestamp-label {
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        .timestamp {
-            font-size: 14px;
-            font-weight: bold;
+        .print-container {
+            display: none;
         }
         @media print {
             body * {
-                visibility: hidden;
-            }
-            .print-area, .print-area * {
-                visibility: visible;
-            }
-            .print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 16cm;
-                height: 8cm;
-                border: none;
-                page-break-after: always;
-            }
-            .no-print {
                 display: none;
             }
+            .print-container, .print-container * {
+                display: block;
+            }
+            .print-container {
+                width: 16cm;
+                height: 8cm;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+                padding: 15px;
+                box-sizing: border-box;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                page-break-after: always;
+            }
+            .print-logo {
+                max-width: 200px;
+                max-height: 80px;
+                margin-bottom: 10px;
+            }
+            .print-qrcode {
+                margin: 10px 0;
+            }
+            .print-timestamp {
+                text-align: center;
+                margin-top: 10px;
+                font-size: 14px;
+            }
             @page {
-                size: auto;
-                margin: 0mm;
+                size: 16cm 8cm;
+                margin: 0;
+                padding: 0;
             }
         }
     </style>
@@ -114,12 +103,23 @@
         <button onclick="window.print()">Imprimir</button>
     </div>
     
-    <div class="print-area" id="printArea">
-        <img src="sejafibra.png" alt="Logo Seja Fibra" class="logo" id="logo">
-        <div class="qrcode" id="qrcode"></div>
-        <div class="timestamp-container">
-            <div class="timestamp-label">Código gerado em</div>
-            <div class="timestamp" id="timestamp"></div>
+    <!-- Área de visualização (não será impressa) -->
+    <div class="no-print" style="width: 16cm; height: 8cm; border: 1px dashed #ccc; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px; box-sizing: border-box; margin-bottom: 20px;">
+        <img src="sejafibra.png" alt="Logo Seja Fibra" style="max-width: 200px; max-height: 80px;" id="preview-logo">
+        <div id="preview-qrcode"></div>
+        <div style="text-align: center; margin-top: 10px;">
+            <div style="font-size: 14px;">Código gerado em</div>
+            <div style="font-size: 14px; font-weight: bold;" id="preview-timestamp"></div>
+        </div>
+    </div>
+    
+    <!-- Área que será impressa (invisível na tela) -->
+    <div class="print-container">
+        <img src="sejafibra.png" alt="Logo Seja Fibra" class="print-logo" id="print-logo">
+        <div class="print-qrcode" id="print-qrcode"></div>
+        <div class="print-timestamp">
+            <div>Código gerado em</div>
+            <div id="print-timestamp"></div>
         </div>
     </div>
 
@@ -127,25 +127,33 @@
     <script>
         function generateQRCode() {
             const pixCode = document.getElementById('pixCode').value;
-            const qrcodeDiv = document.getElementById('qrcode');
-            
-            // Limpa o QR Code anterior
-            qrcodeDiv.innerHTML = '';
             
             if (pixCode) {
-                // Gera novo QR Code
-                new QRCode(qrcodeDiv, {
-                    text: pixCode,
-                    width: 200,
-                    height: 200
-                });
+                // Atualiza a visualização
+                updateQRCode('preview-qrcode', pixCode);
+                updateTimestamp('preview-timestamp');
                 
-                // Atualiza o timestamp
-                const now = new Date();
-                document.getElementById('timestamp').textContent = formatDate(now);
+                // Prepara a versão para impressão
+                updateQRCode('print-qrcode', pixCode);
+                updateTimestamp('print-timestamp');
             } else {
                 alert('Por favor, insira um código PIX');
             }
+        }
+        
+        function updateQRCode(elementId, pixCode) {
+            const qrcodeDiv = document.getElementById(elementId);
+            qrcodeDiv.innerHTML = '';
+            new QRCode(qrcodeDiv, {
+                text: pixCode,
+                width: 200,
+                height: 200
+            });
+        }
+        
+        function updateTimestamp(elementId) {
+            const now = new Date();
+            document.getElementById(elementId).textContent = formatDate(now);
         }
         
         function formatDate(date) {
@@ -158,13 +166,6 @@
             
             return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
         }
-        
-        // Gerar QR Code automaticamente se já houver algo no input ao carregar a página
-        window.onload = function() {
-            if (document.getElementById('pixCode').value) {
-                generateQRCode();
-            }
-        };
     </script>
 </body>
 </html>
